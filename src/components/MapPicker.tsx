@@ -17,7 +17,7 @@ const MapPicker: React.FC<{ onChange: (lat: number, lng: number) => void }> = ({
 }) => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyBv6vi_s6U8DzjFTXlfJiz1C_Y8n9dTFd0",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY ?? '',
   });
 
   const [map, setMap] = useState(null);
