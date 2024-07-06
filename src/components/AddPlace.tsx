@@ -5,7 +5,9 @@ import Box from "@mui/material/Box";
 import { addPlace } from "../services/firebaseService";
 import { IPlace } from "../app/types";
 import ImagePicker from "./ImagePicker";
-import MapPicker from "./MapPicker";
+import dynamic from 'next/dynamic';
+
+const MapPicker = dynamic(() => import('./MapPicker'), { ssr: false }); // Dynamically import MapPicker component
 
 const initialFormData: IPlace = {
   name: "",

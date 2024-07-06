@@ -47,6 +47,7 @@ const ListPlace: React.FC = () => {
     console.log("Delete clicked for index:", index);
   };
 
+
   const handleAddForm = () => {
     setOpenDialog(true);
   };
