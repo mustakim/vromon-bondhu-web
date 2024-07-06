@@ -1,5 +1,5 @@
 import { IPlace } from "../app/types";
-import { db } from "../firebase";
+import { auth, db } from "../firebase";
 import {
   getFirestore,
   collection,
@@ -9,8 +9,19 @@ import {
   getDocs,
   deleteDoc,
 } from "firebase/firestore";
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 const FIREBASE_PLACES_TABLE_NAME = "Places";
+
+// Function to log in user with email and password
+export const login = async (email: string, password: string): Promise<void> => {
+  await signInWithEmailAndPassword(auth, email, password);
+};
+
+// Function to log out user
+export const logout = async (): Promise<void> => {
+  await signOut(auth);
+};
 
 const getPlaces = async () => {
   try {

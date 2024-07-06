@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import Head from "next/head";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import ListPlace from "../components/ListPlace";
+import ListPlace from "../../components/ListPlace";
 
 const Home: React.FC = () => {
 
