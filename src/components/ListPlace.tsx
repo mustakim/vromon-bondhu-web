@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from "react";
-import { getPlaces } from "../services/firebaseService";
+import { deletePlace, getPlaces } from "../services/firebaseService";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -18,14 +18,18 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
-import AddPlace from "./AddPlace";
+import AddPlace from "./AddEditPlace";
 import { IPlace } from "../app/types";
 import Button from "@mui/material/Button";
+import DialogActions from "@mui/material/DialogActions";
 
 const ListPlace: React.FC = () => {
   const [data, setData] = useState<IPlace[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<IPlace>({} as IPlace);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,22 +42,34 @@ const ListPlace: React.FC = () => {
   }, []);
 
   const handleEdit = (index: number) => {
-    // Implement edit functionality here
-    console.log("Edit clicked for index:", index);
+    setSelectedPlace(data[index]);
+    setOpenDialog(true);
   };
 
-  const handleDelete = (index: number) => {
-    // Implement delete functionality here
-    console.log("Delete clicked for index:", index);
+  const handleDelete = async (id: string) => {
+    setDeleteId(id);
+    setOpenDeleteDialog(true);
   };
 
+  const handleConfirmDelete = async () => {
+    if (deleteId) {
+      await deletePlace(deleteId);
+      setData(data.filter((item) => item.id !== deleteId));
+      setDeleteId(null);
+    }
+  };
 
   const handleAddForm = () => {
+    setSelectedPlace({} as IPlace);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
   };
 
   if (loading) {
@@ -102,7 +118,7 @@ const ListPlace: React.FC = () => {
                 </TableCell>
                 <TableCell>{item.latitude}</TableCell>
                 <TableCell>{item.longitude}</TableCell>
-                <TableCell>{item.popular ? "Yes" : "No"}</TableCell>
+                <TableCell>{item.popular ? "Active" : "Inactive"}</TableCell>
                 <TableCell>{item.rating}</TableCell>
                 <TableCell>
                   <Typography
@@ -129,7 +145,7 @@ const ListPlace: React.FC = () => {
                   </IconButton>
                   <IconButton
                     aria-label="delete"
-                    onClick={() => handleDelete(index)}
+                    onClick={() => handleDelete(item.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -138,6 +154,23 @@ const ListPlace: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            Are you sure you want to delete{" "}
+            <b>{data.find((item) => item.id === deleteId)?.name}</b>?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteDialog} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmDelete} color="secondary">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </TableContainer>
       <Fab
         color="primary"
@@ -148,9 +181,9 @@ const ListPlace: React.FC = () => {
         <AddIcon />
       </Fab>
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Add Place</DialogTitle>
+        <DialogTitle>Add/Update Place</DialogTitle>
         <DialogContent>
-          <AddPlace />
+          <AddPlace data={selectedPlace} />
         </DialogContent>
       </Dialog>
     </Box>

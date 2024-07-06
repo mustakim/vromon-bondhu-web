@@ -1,15 +1,16 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { addPlace } from "../services/firebaseService";
+import { addPlace, editPlace } from "../services/firebaseService";
 import { IPlace } from "../app/types";
 import ImagePicker from "./ImagePicker";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const MapPicker = dynamic(() => import('./MapPicker'), { ssr: false }); // Dynamically import MapPicker component
+const MapPicker = dynamic(() => import("./MapPicker"), { ssr: false }); // Dynamically import MapPicker component
 
 const initialFormData: IPlace = {
+  id: "",
   name: "",
   description: "",
   popular: false,
@@ -19,8 +20,14 @@ const initialFormData: IPlace = {
   rating: 2.5,
 };
 
-const AddPlace: React.FC = () => {
-  const [formData, setFormData] = useState<IPlace>(initialFormData);
+const AddPlace: React.FC<{ data?: IPlace }> = ({ data }) => {
+  const [formData, setFormData] = useState<IPlace>(data || initialFormData);
+
+  useEffect(() => {
+    if (data) {
+      setFormData(data);
+    }
+  }, [data]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -49,10 +56,14 @@ const AddPlace: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     try {
-      await addPlace(formData);
-      setFormData({ name: "", description: "" });
+      if (formData.id) {
+        await editPlace(formData.id, JSON.parse(JSON.stringify(formData)));
+      } else {
+        await addPlace(formData);
+      }
+      setFormData(initialFormData); // Reset form after submission
     } catch (error) {
-      console.error("Error submitting form: ", error);
+      console.error('Error submitting form: ', error);
     }
   };
 
@@ -83,7 +94,7 @@ const AddPlace: React.FC = () => {
       <MapPicker onChange={handleMapChange} />
       <ImagePicker onImagesSelected={handleImagesSelected} />
       <Button type="submit" variant="contained" color="primary">
-        Submit
+        {formData.id ? "Update" : "Submit"}
       </Button>
     </Box>
   );

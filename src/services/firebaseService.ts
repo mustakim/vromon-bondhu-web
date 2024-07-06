@@ -1,9 +1,16 @@
 import { IPlace } from "../app/types";
 import { db } from "../firebase";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  doc,
+  getDocs,
+  deleteDoc,
+} from "firebase/firestore";
 
 const FIREBASE_PLACES_TABLE_NAME = "Places";
-
 
 const getPlaces = async () => {
   try {
@@ -11,6 +18,7 @@ const getPlaces = async () => {
       collection(db, FIREBASE_PLACES_TABLE_NAME)
     );
     const data: IPlace[] = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
       name: doc.data().name,
       description: doc.data().description,
       image: doc.data().image || [],
@@ -38,4 +46,21 @@ const addPlace = async (formData: IPlace) => {
   }
 };
 
-export { addPlace, getPlaces };
+const editPlace = async (
+  id: string,
+  formData: Partial<IPlace>
+): Promise<void> => {
+  try {
+    const formDocRef = doc(db, FIREBASE_PLACES_TABLE_NAME, id);
+    await updateDoc(formDocRef, formData);
+  } catch (error) {
+    console.error("Error updating document: ", error);
+  }
+};
+
+const deletePlace = async (id: string): Promise<void> => {
+  const formDoc = doc(db, FIREBASE_PLACES_TABLE_NAME, id);
+  await deleteDoc(formDoc);
+};
+
+export { addPlace, getPlaces, editPlace, deletePlace };
