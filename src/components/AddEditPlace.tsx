@@ -2,7 +2,11 @@ import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { addPlace, editPlace } from "../services/firebaseService";
+import {
+  addPlace,
+  editPlace,
+  uploadImageAndGetURL,
+} from "../services/firebaseService";
 import { IPlace } from "../app/types";
 import ImagePicker from "./ImagePicker";
 import dynamic from "next/dynamic";
@@ -20,7 +24,12 @@ const initialFormData: IPlace = {
   rating: 2.5,
 };
 
-const AddPlace: React.FC<{ data?: IPlace }> = ({ data }) => {
+const AddPlace: React.FC<{ data?: IPlace; onClosePopup: (isClosed: boolean) => void }> = ({
+  data,
+  onClosePopup,
+}) => {
+  const [files, setFiles] = useState<File[] | []>([]);
+  // const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<IPlace>(data || initialFormData);
 
   useEffect(() => {
@@ -38,11 +47,7 @@ const AddPlace: React.FC<{ data?: IPlace }> = ({ data }) => {
   };
 
   const handleImagesSelected = (images: File[]): void => {
-    const imageUrls = images.map((image) => URL.createObjectURL(image));
-    setFormData({
-      ...formData,
-      image: imageUrls,
-    });
+    setFiles(images);
   };
 
   const handleMapChange = (lat: number, lng: number): void => {
@@ -53,17 +58,36 @@ const AddPlace: React.FC<{ data?: IPlace }> = ({ data }) => {
     });
   };
 
+  const uploadFiles = async () => {
+    if (files?.length) {
+      const urls: string[] = [];
+      for (const file of files) {
+        await uploadImageAndGetURL(file).then((fileUploadResponse) => {
+          urls.push(fileUploadResponse);
+        });
+      }
+      formData.image = await urls;
+    } else {
+      delete formData.image;
+    }
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     try {
+      await uploadFiles();
       if (formData.id) {
         await editPlace(formData.id, JSON.parse(JSON.stringify(formData)));
       } else {
+        formData.latitude = 23.87929055104281;
+        formData.longitude = 90.26813495606596;
+        formData.rating = 2.5;
         await addPlace(formData);
       }
+      await onClosePopup(true);
       setFormData(initialFormData); // Reset form after submission
     } catch (error) {
-      console.error('Error submitting form: ', error);
+      console.error("Error submitting form: ", error);
     }
   };
 
@@ -91,7 +115,7 @@ const AddPlace: React.FC<{ data?: IPlace }> = ({ data }) => {
         rows={4}
         required
       />
-      <MapPicker onChange={handleMapChange} />
+      <MapPicker onLocationSelect={handleMapChange} />
       <ImagePicker onImagesSelected={handleImagesSelected} />
       <Button type="submit" variant="contained" color="primary">
         {formData.id ? "Update" : "Submit"}

@@ -1,5 +1,5 @@
 import { IPlace } from "../app/types";
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import {
   getFirestore,
   collection,
@@ -9,7 +9,9 @@ import {
   getDocs,
   deleteDoc,
 } from "firebase/firestore";
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 const FIREBASE_PLACES_TABLE_NAME = "Places";
 
@@ -74,4 +76,32 @@ const deletePlace = async (id: string): Promise<void> => {
   await deleteDoc(formDoc);
 };
 
-export { addPlace, getPlaces, editPlace, deletePlace };
+const uploadImageAndGetURL = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const storageRef = ref(storage, `${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        // Optional: handle upload progress
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+        console.error("Upload failed", error);
+        reject(error);
+      },
+      () => {
+        // Handle successful uploads on complete
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          resolve(downloadURL);
+        });
+      }
+    );
+  });
+};
+
+export { addPlace, getPlaces, editPlace, deletePlace, uploadImageAndGetURL };

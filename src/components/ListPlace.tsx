@@ -31,13 +31,13 @@ const ListPlace: React.FC = () => {
   const [selectedPlace, setSelectedPlace] = useState<IPlace>({} as IPlace);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const formData = await getPlaces();
-      setData(formData);
-      setLoading(false);
-    };
+  const fetchData = async () => {
+    const formData = await getPlaces();
+    setData(formData);
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -56,6 +56,7 @@ const ListPlace: React.FC = () => {
       await deletePlace(deleteId);
       setData(data.filter((item) => item.id !== deleteId));
       setDeleteId(null);
+      handleCloseDeleteDialog();
     }
   };
 
@@ -65,6 +66,7 @@ const ListPlace: React.FC = () => {
   };
 
   const handleCloseDialog = () => {
+    fetchData();
     setOpenDialog(false);
   };
 
@@ -183,7 +185,7 @@ const ListPlace: React.FC = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Add/Update Place</DialogTitle>
         <DialogContent>
-          <AddPlace data={selectedPlace} />
+          <AddPlace data={selectedPlace} onClosePopup={handleCloseDialog} />
         </DialogContent>
       </Dialog>
     </Box>
