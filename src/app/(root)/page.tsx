@@ -16,7 +16,7 @@ const Home: React.FC = () => {
           content="A simple form using Material-UI in Next.js"
         />
       </Head>
-      <Container>
+      <Container sx={{ textAlign: "center", paddingX: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Vromon Bondhu
         </Typography>

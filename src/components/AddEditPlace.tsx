@@ -17,6 +17,7 @@ const initialFormData: IPlace = {
   id: "",
   name: "",
   description: "",
+  fullDescription: "",
   popular: false,
   image: [],
   latitude: 23.87929055104281,
@@ -109,6 +110,16 @@ const AddPlace: React.FC<{ data?: IPlace; onClosePopup: (isClosed: boolean) => v
         label="Description"
         name="description"
         value={formData.description}
+        onChange={handleChange}
+        variant="outlined"
+        multiline
+        rows={4}
+        required
+      />
+      <TextField
+        label="Full Description for training"
+        name="fullDescription"
+        value={formData.fullDescription}
         onChange={handleChange}
         variant="outlined"
         multiline

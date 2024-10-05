@@ -91,9 +91,10 @@ const ListPlace: React.FC = () => {
               <TableCell>Images</TableCell>
               <TableCell>Latitude</TableCell>
               <TableCell>Longitude</TableCell>
-              <TableCell>Popular</TableCell>
+              {/* <TableCell>Popular</TableCell> */}
               <TableCell>Rating</TableCell>
               <TableCell>Description</TableCell>
+              <TableCell>Full Description</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -120,7 +121,7 @@ const ListPlace: React.FC = () => {
                 </TableCell>
                 <TableCell>{item.latitude}</TableCell>
                 <TableCell>{item.longitude}</TableCell>
-                <TableCell>{item.popular ? "Active" : "Inactive"}</TableCell>
+                {/* <TableCell>{item.popular ? "Active" : "Inactive"}</TableCell> */}
                 <TableCell>{item.rating}</TableCell>
                 <TableCell>
                   <Typography
@@ -129,13 +130,29 @@ const ListPlace: React.FC = () => {
                       fontWeight: 400,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      width: "280px",
+                      width: "200px",
                       display: "-webkit-box",
                       WebkitBoxOrient: "vertical",
                       WebkitLineClamp: 2,
                     }}
                   >
                     {item.description}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography
+                    sx={{
+                      fontSize: "0.875rem",
+                      fontWeight: 400,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      width: "200px",
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 2,
+                    }}
+                  >
+                    {item.fullDescription}
                   </Typography>
                 </TableCell>
                 <TableCell>

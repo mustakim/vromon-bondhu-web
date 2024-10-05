@@ -34,6 +34,7 @@ const getPlaces = async () => {
       id: doc.id,
       name: doc.data().name,
       description: doc.data().description,
+      fullDescription: doc.data().fullDescription,
       image: doc.data().image || [],
       latitude: doc.data().latitude,
       longitude: doc.data().longitude,
